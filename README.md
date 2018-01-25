@@ -1,9 +1,9 @@
 ecs terraform module
 ===========
 
-A terraform module to provide ECS clusters in AWS.
+A terraform module to provide ECS clusters in AWS.  This is a fork of [the upstream](https://github.com/terraform-community-modules/tf_aws_ecs), forked to support our deployment of [Valhalla](https://github.com/valhalla/valhalla).
 
-[![CircleCI](https://circleci.com/gh/terraform-community-modules/tf_aws_ecs.svg?style=svg)](https://circleci.com/gh/terraform-community-modules/tf_aws_ecs)
+[![CircleCI](https://circleci.com/gh/FitnessKeeper/tf_aws_ecs_ebs.svg?style=svg)](https://circleci.com/gh/FitnessKeeper/tf_aws_ecs_ebs)
 
 
 This Module currently supports Terraform 0.10.x, but does not require it. If you use tfenv, this module contains a `.terraform-version` file which matches the version of Terraform we currently use to test with.
@@ -53,6 +53,8 @@ extra_tags = [
 - `consul_image` - Image to use when deploying consul, defaults to the hashicorp consul image
 - `registrator_image` - Image to use when deploying registrator agent, defaults to the gliderlabs registrator:latest
 - `enable_agents` - Enable Consul Agent and Registrator tasks on each ECS Instance. Defaults to false
+
+- `ebs_snapshot_matcher` - String to match against the Name tag of the Valhalla data EBS snapshot.
 
 Usage
 -----

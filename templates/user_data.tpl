@@ -5,5 +5,8 @@ echo 'OPTIONS="$${OPTIONS} --storage-opt dm.basesize=${docker_storage_size}G"' >
 echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
 echo 'ECS_ENGINE_AUTH_DATA={"https://index.docker.io/v1/": { "auth": "${dockerhub_token}", "email": "${dockerhub_email}"}}' >> /etc/ecs/ecs.config
 
+# mount additional EBS volume
+mkdir -p /opt/data && mount -t ext4 -o ro {data_device} /opt/data
+
 # Append addition user-data script
 ${additional_user_data_script}

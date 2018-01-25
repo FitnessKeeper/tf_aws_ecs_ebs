@@ -40,6 +40,11 @@ variable "dockerhub_token" {
   description = "Auth Token used for dockerhub. http://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html"
 }
 
+variable "ebs_snapshot_matcher" {
+  default     = "valhalla-elevation-data-*"
+  description = "String to use in matching the EBS snapshot of the Valhalla elevation data"
+}
+
 variable "enable_agents" {
   default     = false
   description = "Enable Consul Agent and Registrator tasks on each ECS Instance"

@@ -1,3 +1,7 @@
+locals {
+  "data_device" = "/dev/xvdcv"
+}
+
 data "aws_ami" "ecs_ami" {
   most_recent = true
 
@@ -12,6 +16,16 @@ data "aws_ami" "ecs_ami" {
   }
 }
 
+data "aws_ebs_snapshot" "data" {
+  most_recent = "true"
+  owners      = ["self"]
+
+  filter {
+    name   = "tag:Name"
+    values = ["${var.ebs_snapshot_matcher}"]
+  }
+}
+
 data "template_file" "user_data" {
   template = "${file("${path.module}/templates/user_data.tpl")}"
 
@@ -21,6 +35,7 @@ data "template_file" "user_data" {
     docker_storage_size         = "${var.docker_storage_size}"
     dockerhub_token             = "${var.dockerhub_token}"
     dockerhub_email             = "${var.dockerhub_email}"
+    data_device                 = "${local.data_device}"
   }
 }
 
@@ -40,6 +55,13 @@ resource "aws_launch_configuration" "ecs" {
   ebs_block_device {
     device_name           = "/dev/xvdcz"
     volume_size           = "${var.docker_storage_size}"
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+
+  ebs_block_device {
+    snapshot_id           = "${data.aws_ebs_snapshot.data.id}"
+    device_name           = "${local.data_device}"
     volume_type           = "gp2"
     delete_on_termination = true
   }
