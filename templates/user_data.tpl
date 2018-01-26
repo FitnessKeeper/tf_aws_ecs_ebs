@@ -9,7 +9,7 @@ echo 'ECS_ENGINE_AUTH_DATA={"https://index.docker.io/v1/": { "auth": "${dockerhu
 mkdir -p /opt/data
 
 # loop until EBS volume is available
-until mount -t ext4 -o ro ${data_device} /opt/data 2>/dev/null; do
+until mount -t ext4 ${data_device} /opt/data 2>/dev/null; do
   echo "Waiting for ${data_device} to become available..."
   sleep 1
 done
