@@ -134,3 +134,7 @@ variable "user_data" {
 variable "vpc_id" {
   description = "The AWS VPC ID which you want to deploy your instances"
 }
+
+variable "aws_ami_owners" {
+  type = "list"
+}
