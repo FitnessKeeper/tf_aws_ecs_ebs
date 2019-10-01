@@ -4,7 +4,7 @@ variable "additional_user_data_script" {
 
 variable "allowed_cidr_blocks" {
   default     = ["0.0.0.0/0"]
-  type        = "list"
+  type        = list(string)
   description = "List of subnets to allow into the ECS Security Group. Defaults to ['0.0.0.0/0']"
 }
 
@@ -107,7 +107,7 @@ variable "registrator_image" {
 }
 
 variable "security_group_ids" {
-  type        = "list"
+  type        = list(string)
   description = "A list of Security group IDs to apply to the launch configuration"
   default     = []
 }
@@ -118,7 +118,7 @@ variable "servers" {
 }
 
 variable "subnet_id" {
-  type        = "list"
+  type        = list(string)
   description = "The AWS Subnet ID in which you want to delpoy your instances"
 }
 
@@ -136,5 +136,6 @@ variable "vpc_id" {
 }
 
 variable "aws_ami_owners" {
-  type = "list"
+  type = list(string)
 }
+
