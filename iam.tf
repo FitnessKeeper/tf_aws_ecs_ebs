@@ -64,6 +64,8 @@ resource "aws_iam_policy" "ecs_policy" {
         "ecs:RegisterContainerInstance",
         "ecs:StartTelemetrySession",
         "ecs:Submit*",
+        "ecs:ListAccountSettings",
+        "ecs:PutAccountSetting",
         "ecr:GetAuthorizationToken",
         "ecr:BatchCheckLayerAvailability",
         "ecr:GetDownloadUrlForLayer",
@@ -90,6 +92,62 @@ resource "aws_iam_policy" "custom_ecs_policy" {
   count       = length(var.custom_iam_policy) > 0 ? 1 : 0
 
   policy = var.custom_iam_policy
+}
+
+data "aws_iam_policy" "ssm_core_policy" {
+  arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+data "aws_iam_policy" "cw_agent_policy" {
+  arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+data "aws_iam_policy_document" "ecs_eni_trunking_process" {
+  statement {
+    sid     = "GetParameter"
+    actions = [
+      "ssm:GetParameter",
+    ]
+    resources = [aws_ssm_parameter.eni_trunking_mismatch_on_boot_terminate_instance.arn]
+  }
+
+  dynamic "statement" {
+      for_each = var.eni_trunking_mismatch_on_boot_terminate_instance ? [true] : []
+
+      content {
+        sid = "TerminateInstances"
+        actions = [
+          "ec2:TerminateInstances",
+        ]
+        condition {
+          test     = "StringEquals"
+          values   = [aws_iam_instance_profile.ecs_profile.arn]
+          variable = "ec2:InstanceProfile"
+        }
+        resources = ["*"]
+      }
+    }
+  }
+
+  resource "aws_iam_policy" "ecs_eni_trunking_process" {
+    policy      = data.aws_iam_policy_document.ecs_eni_trunking_process.json
+    name_prefix = "ecs-eni-${var.name}"
+  }
+
+  resource "aws_iam_policy_attachment" "ecs_eni_trunking_process" {
+    name       = "ecs-eni-trunking-process-attachment"
+    roles      = [aws_iam_role.ecs_role.name]
+    policy_arn = aws_iam_policy.ecs_eni_trunking_process.arn
+  }
+
+resource "aws_iam_role_policy_attachment" "ssm_core_policy_attach" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = data.aws_iam_policy.ssm_core_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "cw_agent_policy_attach" {
+  role       = aws_iam_role.ecs_role.name
+  policy_arn = data.aws_iam_policy.cw_agent_policy.arn
 }
 
 resource "aws_iam_policy_attachment" "attach_ecs" {
@@ -149,4 +207,3 @@ resource "aws_iam_role_policy" "consul_ecs_task" {
   role   = aws_iam_role.consul_task[0].id
   policy = data.aws_iam_policy_document.consul_task_policy.json
 }
-

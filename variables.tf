@@ -2,6 +2,11 @@ variable "additional_user_data_script" {
   default = ""
 }
 
+variable "additional_user_data_script_al1" {
+description = "Use only if cluster has Amazon Linux 1 nodes so you can point to the old ecs_consul_agent_al1.json.sh file"
+  default = ""
+}
+
 variable "allowed_cidr_blocks" {
   default     = ["0.0.0.0/0"]
   type        = list(string)
@@ -9,6 +14,61 @@ variable "allowed_cidr_blocks" {
 }
 
 variable "ami" {
+  default = ""
+}
+
+variable "spot_bid_price" {
+  default     = ""
+  description = "If specified, spot instances will be requested at this bid price.  If not specified, on-demand instances will be used."
+}
+
+variable "green_al1" {
+  description = "Backwards compatibility for Amazon Linux 1 user data"
+  default = false
+}
+
+variable "second_asg_min_servers" {
+  description = "Minimum number of ECS servers to run in the Second ASG."
+  default     = 1
+}
+
+
+variable "blue_eni_trunking_enabled" {
+  description = "Blue eni trunking enabled"
+  default     = null
+}
+
+variable "asg_delete_extra_timeout" {
+  description = "Extra time that `terraform apply` will wait for ASG deletion (default 600). This is added on top of `heartbeat_timeout`. This variable is customizable for when the instances take longer than 600sec to shut down once shutdown is initiated."
+  default     = "600"
+}
+
+variable "green_eni_trunking_enabled" {
+  description = "Green eni trunking enabled"
+  default     = null
+}
+
+variable "second_asg_servers" {
+  default     = "0"
+  description = "The number of servers to launch in the Second ASG, default 0 (in which case the Second ASG is not created)."
+}
+
+variable "second_asg_max_servers" {
+  description = "Maximum number of ECS servers to run in the Second ASG."
+  default     = 10
+}
+
+variable "second_asg_instance_type" {
+  default     = ""
+  description = "AWS Instance type, if you change, make sure it is compatible with AMI, not all AMIs allow all instance types; default \"\" will use same instance_type as first ASG"
+}
+
+variable "blue_al1" {
+  description = "Backwards compatibility for Amazon Linux 1 user data"
+  default = false
+}
+
+variable "second_asg_ami" {
   default = ""
 }
 
@@ -28,6 +88,11 @@ variable "consul_image" {
 variable "docker_storage_size" {
   default     = "22"
   description = "EBS Volume size in Gib that the ECS Instance uses for Docker images and metadata "
+}
+
+variable "ebs_block_device" {
+  default     = "/dev/xvdcz"
+  description = "EBS block devices to attach to the instance. (default: /dev/xvdcz)"
 }
 
 variable "dockerhub_email" {
@@ -139,3 +204,8 @@ variable "aws_ami_owners" {
   type = list(string)
 }
 
+variable "eni_trunking_mismatch_on_boot_terminate_instance" {
+  description = "If managing the ENI Trunking setting, should instances terminate after updating the setting? See README"
+  type        = bool
+  default     = false
+}
